@@ -1,3 +1,4 @@
-from integrate.solvers import *
-from integrate.OdeSol import *
-from integrate.phase import *
+from .methods import *
+from .OdeSol import *
+from .phase import *
+from .solvers import *
