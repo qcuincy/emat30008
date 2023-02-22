@@ -2,6 +2,7 @@ import numpy as np
 from scipy.integrate import odeint, solve_ivp
 from scipy.optimize import root, fsolve
 from .solvers import *
+import sys
 
 
 def find_limit_cycle(ode, initialu, tol=1e-6):
@@ -33,15 +34,15 @@ def find_limit_cycle(ode, initialu, tol=1e-6):
         return None
 
 
-def shooting_method(ode, x0, t_span, phase_cond, args=(), maxiter=100, bounds=[None, None], tol=1e-6):
+def shooting_method(ode, x0, t_span, phase_cond=None, args=(), maxiter=100, bounds=[None, None], tol=1e-6):
     """
     Find a limit cycle of the system of ODEs defined by `ode`.
 
     Args:
         ode (function):
             Function that defines the system of ordinary differential equations.
-            The function should take two arguments, t and y, and return a 1D numpy
-            array with the same shape as y.
+            The function should take two arguments, t and x, and return a 1D numpy
+            array with the same shape as x.
         x0 (array_like)
             Initial guess for the value of the solution at the left boundary.
         t_span (tuple):
@@ -68,7 +69,8 @@ def shooting_method(ode, x0, t_span, phase_cond, args=(), maxiter=100, bounds=[N
         x0_new = x0
         sol = ode_ivp(ode, t_span, x0_new)
         x_final = sol["y"][:,-1]
-        error = phase_cond(x0_new, x_final)
+        phase_val = phase_cond(x0_new, x_final) if phase_cond != None else (x_final - x0_new)
+        error = phase_val
         return error
 
 
@@ -89,6 +91,13 @@ def shooting_method(ode, x0, t_span, phase_cond, args=(), maxiter=100, bounds=[N
         except:
             pass
         return to_minimize(x0, ode, t_span)
+    
+    try:
+        test_sol = ode(0, x0)
+    except Exception as E:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        print(str(exc_type.__name__) + ": " + str(E) + f"\nMake sure your initial values ({x0}) have the same dimensions as those expected by your ode ({ode.__name__})")
+        return exc_type
 
     
     x0_sol, info, ier, msg = fsolve(get_bounds, x0, args=(ode, t_span, bounds, ), full_output=True, maxfev=maxiter, xtol=tol)
@@ -99,4 +108,4 @@ def shooting_method(ode, x0, t_span, phase_cond, args=(), maxiter=100, bounds=[N
         return x0_sol
     else:
         print(f"Root finder failed with error message: {msg}")
-        return None
+        return np.array([])
