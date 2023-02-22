@@ -5,16 +5,16 @@ from .solvers import *
 import sys
 
 
-def find_limit_cycle(ode, initialu, tol=1e-6):
+def find_limit_cycle(ode, initial_x, tol=1e-6):
     """
     Find a limit cycle of the system of ODEs defined by `ode`.
 
     Args:
         ode (function): 
             Function that defines the system of ODEs.
-            The calling signature is `ode(t, y)`, where `t` is a scalar and `y` is a 1-D array.
-            The function must return a 1-D array with the same shape as `y`.
-        initialu (array_like): 
+            The calling signature is `ode(t, x)`, where `t` is a scalar and `x` is a 1-D array.
+            The function must return a 1-D array with the same shape as ``.
+        initial_x (array_like): 
             Initial guess for the limit cycle.
         tol (float, optional): 
             Tolerance for the root finding algorithm.
@@ -27,7 +27,7 @@ def find_limit_cycle(ode, initialu, tol=1e-6):
         sol = solve_to(ode, x0, np.linspace(0, 20, 200))
         return sol[-1, :] - x0
 
-    sol = root(residual, initialu, tol=tol)
+    sol = root(residual, initial_x, tol=tol)
     if sol.success:
         return sol.x
     else:
