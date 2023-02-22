@@ -92,7 +92,7 @@ def ode_ivp(f, t_span, y0, method="RK45", t_eval=None, step_size=0.001, rtol=1e-
     if not callable(f):
         raise TypeError("The argument 'f' must be a function.")
     if not isinstance(t_span, (list, np.ndarray)):
-        raise TypeError("The argument 't0' must be a number.")
+        raise TypeError("The argument 't_span' must be a 2-member sequence -> [t0, tf].")
     if len(t_span) != 2:
         raise ValueError("The argument 't_span' must be a 2-member sequence -> [t0, tf].")
     if t_span[0] < 0:
