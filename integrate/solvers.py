@@ -80,9 +80,9 @@ def ode_ivp(f, t_span, y0, method="RK45", t_eval=None, step_size=0.001, rtol=1e-
     step_size : (float, optional)
         The size of the time step used in the numerical method. Defaults to 0.001.
     rtol : (float, optional)
-        The relative tolerance. Defaults to 1e-6.
+        The relative tolerance. Defaults to 1e-3.
     atol : (float or array_like, optional)
-        The absolute tolerance. Defaults to 1e-9.
+        The absolute tolerance. Defaults to 1e-6.
     
     Returns
     -------
