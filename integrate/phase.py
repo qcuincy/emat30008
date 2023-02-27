@@ -34,7 +34,19 @@ def find_limit_cycle(ode, initial_x, tol=1e-6):
         return None
 
 
-def shooting_method(ode, x0, t_span, phase_cond=None, args=(), maxiter=100, bounds=[None, None], tol=1e-6):
+def find_period(y, idx=None):
+    chosen_point_idx = np.random.randint(0, len(y[:,0])) if idx==None else idx
+    chosen_point = [y[chosen_point_idx, 0], y[chosen_point_idx, 1]]
+    limit_cycle = y[:,(y[0]>0) & (y[1] > 0)]
+
+    distances = np.linalg.norm(limit_cycle.T - chosen_point, axis=1)
+    min_distance_index = np.argmin(distances)
+    phase = 2 * np.pi * min_distance_index / len(limit_cycle)
+
+    return phase, chosen_point, limit_cycle
+
+
+def shooting_method(ode, x0, t_span, phase_cond=None, args=(), maxiter=100, bounds=[None, None], solver=fsolve, tol=1e-3):
     """
     Find a limit cycle of the system of ODEs defined by `ode`.
 
@@ -55,7 +67,12 @@ def shooting_method(ode, x0, t_span, phase_cond=None, args=(), maxiter=100, boun
             Maximum number of iterations for the root-finding algorithm (default is 100).
         bounds (tuple, optional):
             Tuple (lb, ub) defining lower and upper bounds on the initial guess `x0`
-            (default is [None, None], which means no bounds).
+            (default is [None, None], implying there are no bounds).
+        solver (function, optional):
+            Function that defines the numerical method to use to minimize the error.
+        tol (float, optional):
+            Tolerance for the 'solver' to terminate.
+            Calculations will terminate if the relative error between two consecutive iterates is less than or equal to 'tol'
 
     Returns:
         x0_sol (array_like or None):
@@ -67,10 +84,12 @@ def shooting_method(ode, x0, t_span, phase_cond=None, args=(), maxiter=100, boun
         Helper function to calculate the error in the boundary conditions.
         """
         x0_new = x0
-        sol = ode_ivp(ode, t_span, x0_new)
+        sol = ode_ivp(ode, t_span, x0)
+        x0_new = sol["y"][:,0]
         x_final = sol["y"][:,-1]
         phase_val = phase_cond(x0_new, x_final) if phase_cond != None else (x_final - x0_new)
         error = phase_val
+        print(error)
         return error
 
 
@@ -95,12 +114,11 @@ def shooting_method(ode, x0, t_span, phase_cond=None, args=(), maxiter=100, boun
     try:
         test_sol = ode(0, x0)
     except Exception as E:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
+        exc_type, _, _ = sys.exc_info()
         print(str(exc_type.__name__) + ": " + str(E) + f"\nMake sure your initial values ({x0}) have the same dimensions as those expected by your ode ({ode.__name__})")
         return exc_type
 
-    
-    x0_sol, info, ier, msg = fsolve(get_bounds, x0, args=(ode, t_span, bounds, ), full_output=True, maxfev=maxiter, xtol=tol)
+    x0_sol, info, ier, msg = solver(get_bounds, x0, args=(ode, t_span, bounds, ), full_output=True, maxfev=maxiter, xtol=tol)
     if ier == 1:
         fcalls = info["nfev"]
         residual = np.linalg.norm(info["fvec"])
