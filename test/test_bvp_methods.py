@@ -1,4 +1,4 @@
-from context import src
+from .context import src
 from src.bvp_methods.shoot import Shoot
 import numpy as np
 import unittest

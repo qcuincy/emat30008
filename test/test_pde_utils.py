@@ -1,4 +1,4 @@
-from context import src
+from .context import src
 from src.pde_utils.methods import *
 from src.pde_utils.grid import Grid
 import numpy as np

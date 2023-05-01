@@ -1,4 +1,4 @@
-from context import src
+from .context import src
 from src.problemsolver import ProblemSolver as PS
 from src.solution import Solution
 from src.problem import Problem

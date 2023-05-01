@@ -1,4 +1,4 @@
-from context import src
+from .context import src
 import unittest
 from src.ivp_methods import Euler, IEuler, Midpoint, RK4, RK45
 import numpy as np
