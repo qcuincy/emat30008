@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from context import src
+from .context import src
 from src import *
 import numpy as np
 
