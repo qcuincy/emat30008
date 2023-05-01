@@ -10,7 +10,7 @@ import copy
 
 class Solver:
     """
-    Base class for solving initial value problems
+    Base class for solving IVP and BVP problems
 
     Classes:
         Solver
