@@ -14,7 +14,7 @@ class Solver:
 
     Classes:
         Solver
-            Base class for solving initial value problems
+            Base class for solving IVP and BVP problems
 
     Attributes:
         f (function):
