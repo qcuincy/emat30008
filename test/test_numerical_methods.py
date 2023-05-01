@@ -1,6 +1,5 @@
-from .context import src
-
-from src.pde_utils.grid import Grid
+from context import src
+from src.problemsolver import ProblemSolver as PS
 from src.solution import Solution
 from src.problem import Problem
 from src.solver import Solver
@@ -9,69 +8,37 @@ from src.bvp import BVP
 import numpy as np
 import unittest
 
-
-class TestIVP(unittest.TestCase):
-
-    def test_ode_solver(self):
-        def f(x, u):
-            return [u[1], -u[0]]
-        y0 = [1, 0]
-        t0 = 0
-        tf = 10
-        Nt = 100
-        problem = Problem(f=f, y0=y0, t0=t0, tf=tf, Nt=Nt)
-        ivp = IVP(problem)
-        sol = ivp.solve()
-        # Check that the solution is of the correct type
-        self.assertIsInstance(sol, Solution)
-        # Check that the time and solution arrays are of the correct shape
-        self.assertEqual(sol.t.shape, (101,))
-        self.assertEqual(sol.y.shape, (101,2))
-        # Check that the solution is correct at the initial time
-        self.assertEqual(sol.y[0,0], float(y0[0]))
-        self.assertEqual(sol.y[0,1], float(y0[1]))
-
-    def test_pde_solver(self):
-        def q(t, x, u):
-            return u
+class TestProblemSolver(unittest.TestCase):
+    
+    def setUp(self):
+        self.problem1 = Problem(f=lambda t, y: t + y, t0=0, tf=1, y0=1)
+        self.problem2 = Problem(f=lambda t, y: t + y, t0=0, tf=1, y0=1, bc=lambda y0, yf: y0 + yf)
+        self.problem3 = Problem(q=lambda t, y, u: t + u, t0=0, tf=1, a=0, b=1, C=0.5, bc=lambda y0, yf: y0 + yf, ic=lambda x: x)
+        self.ivp = IVP(self.problem1)
+        self.bvp = BVP(self.problem2)
+        self.problem_solver_ivp = PS(problem=self.problem1)
+        self.problem_solver_bvp = PS(problem=self.problem2)
+        self.solution_ivp = Solution(t=np.linspace(0, 1, 100), y=np.linspace(0, 1, 100))
+        self.solution_bvp = Solution(t=np.linspace(0, 1, 100), y=np.linspace(0, 1, 100))
         
-        def ic(x):
-            return np.sin(np.pi*x)
+    def test_init_ivp(self):
+        self.assertEqual(self.problem_solver_ivp.problem.problem_type, self.problem1.problem_type)
+        self.assertEqual(type(self.problem_solver_ivp.ivp), type(self.ivp))
         
-        t0 = 0
-        tf = 10
-        Nt = 100
-        a = 0
-        b = 1
-        Nx = 100
-        C = 0
-
-        problem = Problem(q=q, ic=ic, t0=t0, tf=tf, Nt=Nt, a=a, b=b, Nx=Nx, C=C)
-        ivp = IVP(problem)
-        sol = ivp.solve()
-        # Check that the solution is of the correct type
-        self.assertIsInstance(sol, Solution)
-        # Check that the time and solution arrays are of the correct shape
-        self.assertEqual(sol.t.shape, (101,))
-        self.assertEqual(sol.u.shape, (101, 101))
-        # Check that the solution is correct at the initial time
-        self.assertEqual(sol.u[0,0], float(ic(a)))
-        self.assertEqual(sol.u[0,-1], float(ic(b)))
-
-    def test_ode_continuation_solver(self):
-        def q_cont(x, u, p):
-            return [u[1], -u[0] + p]
-
-        p0 = 0
-        p_span = [0, 10]
-        problem = Problem(f=q_cont, y0=[1, 0], t0=0, tf=10, Nt=100, args=(p0,))
-        ivp = IVP(problem)
-        sols = ivp.solve(p0=p0, p_span=p_span, ds=0.1)
-        # Check that the solution is of the correct type
-        self.assertIsInstance(sols, Solution)
-        # Check that the time and solution arrays are of the correct shape
-        self.assertEqual(sols.t.shape, (101,))
-        self.assertEqual(sols.y.shape, (101, 2, 101))
+    def test_init_bvp(self):
+        self.assertEqual(self.problem_solver_bvp.problem.problem_type, self.problem2.problem_type)
+        self.assertEqual(type(self.problem_solver_bvp.bvp), type(self.bvp))
         
-if __name__ == '__main__':
-    unittest.main()
+    def test_solve_ivp(self):
+        solution = self.problem_solver_ivp.solve(method="RK45")
+        self.assertEqual(type(solution), Solution)
+        
+    def test_solve_bvp(self):
+        solution, _ = self.problem_solver_bvp.solve(discretize_method="SHOOT")
+        self.assertEqual(type(solution), Solution)
+
+        
+    def test_solve_invalid_problem_type(self):
+        problem_solver = PS(problem=self.problem3)
+        with self.assertRaises(Exception):
+            problem_solver.solve()

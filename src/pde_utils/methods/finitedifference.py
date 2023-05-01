@@ -72,7 +72,7 @@ class FiniteDifference():
         arguments accordingly. The function will also call the bc_handler function to handle the boundary conditions.
 
         Args:
-            q (function): function of x, t, and U that represents the source term of the PDE.
+            q (function): function of t, x, and U that represents the source term of the PDE.
             ic (function): function to set the initial condition. Default is None.
             bc (function): function to set the boundary condition. Default is None.
             method (str): method to solve the PDE. Must be one of "IVP", "EULER", "IEULER", "RK4", "RK45", or "MIDPOINT".
@@ -109,7 +109,7 @@ class FiniteDifference():
         for n in range(self.Nt):
             # Solve the linear system using the method specified
             U[n+1, 1:-1] = self._method_handler(method, root_finder, A, U, self.C, q, n)
-            # print(U)
+
             # Handle the boundary conditions
             U = self.bc_handler(bc_type.upper(), bc, U, t=self.t[n+1])
 
@@ -135,10 +135,12 @@ class FiniteDifference():
         - U: array_like, solution array with boundary conditions applied
         """
         if bc is None:
-            U[:, 0] = U[:, 1]
-            U[:, -1] = U[:, -2]
+            if np.allclose(U[:, 1], np.zeros_like(U[:, 1])) and np.allclose(U[:, -2], np.zeros_like(U[:, -2])):
+                U[:, 0] = U[:, 1]
+                U[:, -1] = U[:, -2]
             return U
-
+            
+            
         if bc_type == "DIRICHLET":
             if len(inspect.getfullargspec(bc).args) == 2:
                 U[:, 0] = bc(self.a, self.b)[0]
@@ -165,14 +167,12 @@ class FiniteDifference():
 
         if bc_type == "ROBIN":
             if len(inspect.getfullargspec(bc).args) == 2:
-                u_a = bc(self.a, self.b)[0]
-                u_b = bc(self.a, self.b)[1]
+                u_a, u_b = bc(self.a, self.b)
                 U[:, 0] = (u_a[0] * U[:, 1] + u_a[1] * u_a[0] * self.dx) / (1 + u_a[1] * self.dx)
                 U[:, -1] = (u_b[0] * U[:, -2] + u_b[1] * u_b[0] * self.dx) / (1 + u_b[1] * self.dx)
                 return U
             if len(inspect.getfullargspec(bc).args) == 3:
-                u_a = bc(self.a, self.b, t)[0]
-                u_b = bc(self.a, self.b, t)[1]
+                u_a, u_b = bc(self.a, self.b, t)
                 U[:, 0] = (u_a[0] * U[:, 1] + u_a[1] * u_a[0] * self.dx) / (1 + u_a[1] * self.dx)
                 U[:, -1] = (u_b[0] * U[:, -2] + u_b[1] * u_b[0] * self.dx) / (1 + u_b[1] * self.dx)
                 return U
@@ -188,7 +188,7 @@ class FiniteDifference():
         
         Args:
         - method (str): The name of the method to use. Possible values are:
-            * 'IVP': Use the IVP moduel to solve the initial value problem (IVP) defined by the function f(t, u) = A@u - U[n, 1:-1] - C*q(self.t[n], self.x[1:-1], U[n, 1:-1]) and the initial condition u0 = U[n, 1:-1] for t in (self.t[n], self.t[n+1])
+            * 'IVP': Use the IVP module to solve the initial value problem (IVP) of the PDE.
             * A method from ('EULER', 'IEULER', 'RK4', 'RK45', 'MIDPOINT'): Use the specified Runge-Kutta method to solve the ODE.
         - root_finder (str): The name of the root finder to use. Possible values are:
             * 'ROOT': Use the root function from scipy.optimize to solve the root of the PDE.
@@ -232,7 +232,7 @@ class FiniteDifference():
                 return A@u - U[n, 1:-1] - C*np.array(q(self.t, self.x[1:-1], U[n, 1:-1]))
             problem = Problem(f=f, y0=U[n, 1:-1], t0=self.t[n], tf=self.t[n+1], Nt=self.Nt)
             sol = IVP(problem).solve(method=method)
-            return sol.y[-1, 1:-1]
+            return sol.y[-1, :]
         
 
     def matrix_handler(self, matrix_type, A, b):

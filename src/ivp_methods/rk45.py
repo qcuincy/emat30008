@@ -26,39 +26,8 @@ class RK45(ODEStep):
         step(i): Perform a single step of RK45 method
     """
     
-    def __init__(self, f, y0, t0, tf, dt):
-        """
-        Initializes an RK45 solver instance.
-
-        Args:
-            f (callable): The function defining the ODE.
-            y0 (float or array): The initial value of the dependent variable.
-            t0 (float): The initial value of the independent variable.
-            tf (float): The final value of the independent variable.
-            dt (float): The size of the step to take in each iteration.
-
-        Attributes:
-            f (callable): The function defining the ODE.
-            y0 (float or array): The initial value of the dependent variable.
-            t0 (float): The initial value of the independent variable.
-            tf (float): The final value of the independent variable.
-            dt (float): The size of the step to take in each iteration.
-            t (ndarray): The array of time values.
-            y (ndarray): The array of solution values.
-
-        Raises:
-            TypeError: If f is not callable.
-            ValueError: If f does not have two parameters.
-            TypeError: If y0 is not a numeric value or array.
-            TypeError: If t0 is not a numeric value.
-            TypeError: If tf is not a numeric value.
-            ValueError: If tf is less than or equal to t0.
-            TypeError: If dt is not a numeric value.
-            ValueError: If dt is less than or equal to zero.
-            ValueError: If dt is greater than tf - t0.
-        """
-        super().__init__(f, y0, t0, tf, dt)
-        self.tol = 1e-1
+    def __init__(self, f, y0, t0, tf, dt, tol=1e-4):
+        super().__init__(f, y0, t0, tf, dt, tol)
 
 
     def step(self, i):

@@ -6,7 +6,7 @@ import inspect
 class ODEStep:
     """A template class for ODE step methods."""
     
-    def __init__(self, f, y0, t0, tf, dt):
+    def __init__(self, f, y0, t0, tf, dt, tol=1e-1):
         """
         Initializes an ODE solver instance.
 
@@ -48,7 +48,7 @@ class ODEStep:
         self.t = np.linspace(self.t0, self.tf + self.dt, self.Nt)
         self.y = np.zeros((len(self.t), len(self.y0)))
         self.y[0, :] = self.y0
-        self.tol = 1e-1
+        self.tol = tol
 
     
 
