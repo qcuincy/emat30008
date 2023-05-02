@@ -58,7 +58,6 @@ class CrankNicolson(FiniteDifference):
         for n in range(self.Nt):
             # Construct the right-hand side vector b
             b = B@U[n, 1:-1] + self.dt*np.array(q(self.t[n], self.x[1:-1], U[n, 1:-1]))
-            # b = B@U[n, 1:-1] + self.dt*np.array(q(self.x[1:-1], self.t[n], U[n, 1:-1]))
 
             # Solve the linear system using the method specified
             U[n+1, 1:-1] = self.matrix_handler(matrix_type.upper(), A, b)

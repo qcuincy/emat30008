@@ -62,7 +62,7 @@ class MethodOfLines(FiniteDifference):
             b = q(self.t[n], self.x[1:-1], U[n, 1:-1])
 
             # Solve the linear system using the method specified
-            U[n+1, 1:-1] = self.method_handler(method, root_finder, A, U, self.C, q, n)
+            U[n+1, 1:-1] = self._method_handler(method, root_finder, A, U, self.C, q, n)
 
             # Handle the boundary conditions
             U = self.bc_handler(bc_type.upper(), bc, U, t=self.t[n+1])

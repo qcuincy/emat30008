@@ -507,13 +507,13 @@ class Problem:
             if 'D' in self.params and not isinstance(self.D, numbers.Real):
                 raise ValueError("Diffusion coefficient `D` must be a real number.")
             if self.C is not None and self.D is None:
-                self.D = self.C*self.dx**2/self.dt
+                self.D = self.C*self.dx/self.dt
             else:
-                self.C = self.D*self.dt/self.dx**2
+                self.C = self.D*self.dt/self.dx
             if self.C < 0 or self.D < 0:
                 raise ValueError("Convection coefficient `C` and diffusion coefficient `D` must be non-negative.")
-            if self.C > 0.5:
-                raise ValueError(f"Convection coefficient `C` must be less than 0.5 for stability. Current value is {round(self.C, 3)}.")
+            if self.C > 0.7:
+                raise ValueError(f"Convection coefficient `C` must be less than 0.7 for stability. Current value is {round(self.C, 3)}.")
 
     
     def round_to_const(self, value, const):

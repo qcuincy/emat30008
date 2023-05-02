@@ -123,9 +123,12 @@ class Hopf(Example):
 
 class Van_der_Pol(Example):
     def __init__(self):
-        pass
+        self.mu = 1.5
 
-    def ode(self, t, u, mu=1):
+    def __call__(self):
+        return (self.mu, self.ode, self.pde)
+
+    def ode(self, t, u, mu=1.5):
         """
         The Van der Pol equations.
 
@@ -146,7 +149,8 @@ class Van_der_Pol(Example):
         # returning
         return np.array([dxdt, dydt])
     
-    def pde(self, t, y, u, mu=1):
+    
+    def pde(self, t, y, u, mu=1.5):
         """
         The Van der Pol equations.
 
@@ -395,10 +399,10 @@ class Lorenz(Example):
 
 class DynamicBratu(Example):
     def __init__(self):
-        self.mu = 1
+        self.mu = 2
 
     def __call__(self):
-        return (self.mu), self.ode, self.pde
+        return self.mu, self.pde
 
     def pde(self, t, y, u, mu=1):
         """
@@ -407,7 +411,7 @@ class DynamicBratu(Example):
         du/dt = D*d^2u/dx^2 + exp(mu*u)
 
         """
-        return np.array(mu*np.exp(mu*u))
+        return np.array(np.exp(mu*u))
 
 class Heat(Example):
     def __init__(self):

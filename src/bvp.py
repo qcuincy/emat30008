@@ -169,18 +169,6 @@ class BVP(Solver):
             sol = IVP(Problem(f=lambda t, y: q_cont(t, y, *ps_prev), y0=y_prev, t0=self.t0, tf=self.tf, Nt=self.Nt)).solve()
             time = sol.t
 
-            # # Calculate arclength
-            # ds = np.sqrt(abs(da**2 - np.dot(u[:-1] - y_prev, u[:-1] - y_prev)))
-
-
-            # Update the step size if it is too large
-            # if ds > max_ds:
-            #     ds *= 0.99
-
-            # # Update the step size if it is too small
-            # if ds < min_ds:
-            #     ds *= 1.01
-
             # Clear output
             if not output:
                 clear_output()

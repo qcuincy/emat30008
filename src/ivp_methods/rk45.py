@@ -26,7 +26,7 @@ class RK45(ODEStep):
         step(i): Perform a single step of RK45 method
     """
     
-    def __init__(self, f, y0, t0, tf, dt, tol=1e-4):
+    def __init__(self, f, y0, t0, tf, dt, tol=1e-1):
         super().__init__(f, y0, t0, tf, dt, tol)
 
 

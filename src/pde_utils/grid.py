@@ -139,13 +139,13 @@ class Grid():
 
         # Calculate D or C based on the specified value
         if self.C is not None:
-            self.D = self.C * self.dx ** 2 / self.dt
+            self.D = self.C * self.dx / self.dt
         else:
-            self.C = self.D * self.dt / self.dx ** 2
+            self.C = self.D * self.dt / self.dx
 
-        # Check that C is less than or equal to 0.5
-        if self.C > 0.5:
-            raise ValueError("C must be less than or equal to 0.5 for stability")   
+        # Check that C is less than or equal to 0.7
+        if self.C > 0.7:
+            raise ValueError(f"C must be less than or equal to 0.5 for stability. Current value of C is {round(self.C, 3)}")   
 
         # Check Nx and Nt are the same
         if self.Nx != self.Nt:
