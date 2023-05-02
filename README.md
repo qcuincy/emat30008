@@ -24,6 +24,8 @@ pip install .
 
 ## Usage
 
+![Block Diagram](https://svgur.com/i/sgh.svg)
+
 The `ProblemSolver` class provides an easy and flexible way to solve differential equations. Here is an example usage:
 
 ```python
