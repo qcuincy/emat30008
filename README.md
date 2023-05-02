@@ -22,9 +22,40 @@ To install the numerical methods package, run:
 pip install .
 ```
 
-### Usage
+## Usage
 
-To use the numerical methods, import the relevant module from `src`. For example, to use the `shoot` method for solving boundary value problems, import `shoot` from `src.bvp_methods`.
+The `ProblemSolver` class provides an easy and flexible way to solve differential equations. Here is an example usage:
+
+```python
+from src import ProblemSolver as ps
+from src import examples as ex
+import numpy as np
+
+# Load example problem
+example = ex.Van_der_Pol()
+params, ode, _ = example()
+
+# Initial conditions
+y0 = np.array([2, 0])
+
+# Time points
+t0, tf = 0, 5
+Nt = 500
+
+# Parameters
+mu = params
+
+# Solve the problem
+solver = ps(f = ode, y0 = y0, t0 = t0, tf = tf, Nt=Nt, args=(mu,))
+solution = solver.solve(method="RK45")
+
+# Plot the phase plot
+solution.plot(phase_plot=True, width=1000, height=400, margin=dict(l=50, r=50, b=50, t=50, pad=0))
+```
+
+In this example, we load the Van der Pol example problem, set the initial conditions and time points, and solve the problem using the `RK45` method. Finally, we plot the phase plot of the solution. Resulting in the following plot:
+
+<img src="https://i.postimg.cc/Hxnvsg51/newplot.png" alt="drawing" width="800"/>
 
 ## Modules
 
